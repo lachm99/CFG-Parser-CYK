@@ -50,7 +50,7 @@ class Parser:
             # separate on whitespace (excluding leading or trailing whitespace)
             production = re.sub('\s', ' ', production.strip())
             production = production.split(' ')
-            production = [re.sub('epsilon', '', production[i]A) for i in range(len(production))]
+            production = [re.sub('epsilon', '', production[i]) for i in range(len(production))]
             rules.append((v, production))
         return CFG(vas, tes, start, rules)
 
