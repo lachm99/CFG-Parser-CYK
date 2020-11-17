@@ -4,13 +4,15 @@ data. You can edit or remove as much of this code as you wish to."""
 
 from parser import Parser
 from sys import stdin
+from cfg import *
 
 def membership(parser):
     """For each string, decide if it is in the language."""
     cfg = parser.parse_cfg()
     test_strings = parser.parse_test_strings()
-    # TODO: implement this
-    print('TODO: print 0 or 1 per string')
+    for in_string in test_strings:
+        cfg.cyk(in_string)
+    print("end")
 
 def rightmost_derivation(parser):
     """Give a rightmost derivation of the string."""
@@ -25,6 +27,7 @@ def ambiguous(parser):
     test_strings = parser.parse_test_strings()
     # TODO: implement this
     print('TODO: print 0 or 1 per string')
+
 
 if __name__ == '__main__':
 

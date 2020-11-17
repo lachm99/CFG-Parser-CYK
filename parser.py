@@ -4,6 +4,7 @@ it, if you'd prefer to write your own parsing functions."""
 
 import re
 from sys import stdin
+from cfg import *
 
 class Parser:
     """Combined parser and reader, takes a stream as input, outputs cfg/commands"""
@@ -37,21 +38,21 @@ class Parser:
         """
         lines = self.read_section()
         it = iter(lines)
-        cfg = dict()
         # variables and terminals are comma separated, with no whitespace
-        cfg['variables'] = re.sub('\s', '', next(it)).split(',')
-        cfg['terminals'] = re.sub('\s', '', next(it)).split(',')
-        cfg['start'] = next(it)
+        vas = re.sub('\s', '', next(it)).split(',')
+        tes = re.sub('\s', '', next(it)).split(',')
+        start = next(it)
         # the remaining lines are rules V -> production
-        cfg['rules'] = list()
+        rules = list()
         for line in it:
             v, production = line.split('->')
             v = v.strip()
             # separate on whitespace (excluding leading or trailing whitespace)
             production = re.sub('\s', ' ', production.strip())
             production = production.split(' ')
-            cfg['rules'].append((v, production))
-        return cfg
+            production = [re.sub('epsilon', '', production[i]A) for i in range(len(production))]
+            rules.append((v, production))
+        return CFG(vas, tes, start, rules)
 
     def parse_test_strings(self):
         """Read from the stream, return a list of strings (to be tested)"""
