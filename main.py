@@ -11,22 +11,28 @@ def membership(parser):
     cfg = parser.parse_cfg()
     test_strings = parser.parse_test_strings()
     for in_string in test_strings:
-        cfg.cyk(in_string)
+        table = cfg.generateTable(in_string)
+        print("1") if cfg.checkMembership(table) else print("0")
     print("end")
 
 def rightmost_derivation(parser):
     """Give a rightmost derivation of the string."""
     cfg = parser.parse_cfg()
     test_string = parser.parse_test_string()
-    # TODO: implement this
-    print('TODO: print a rightmost derivation of the string')
+    table = cfg.generateTable(test_string)
+    cfg.printRightmostDerivation(table)
+
+    print("end")
 
 def ambiguous(parser):
     """For each string, decide if it is ambiguous in this grammar."""
     cfg = parser.parse_cfg()
     test_strings = parser.parse_test_strings()
-    # TODO: implement this
-    print('TODO: print 0 or 1 per string')
+    for test_string in test_strings:
+        table = cfg.generateTable(test_string)
+        derivations = cfg.checkAmbiguity(table)
+        print("1") if derivations > 1 else print("0")
+    print("end")
 
 
 if __name__ == '__main__':
