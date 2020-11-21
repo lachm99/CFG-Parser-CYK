@@ -85,11 +85,11 @@ class ProductionRule:
     def __init__(self, producerVariable, producedTuple):
         self.var = producerVariable
         self.p1 = producedTuple[0]
-        self.p2 = producedTuple[1] if (len(pTuple) > 1) else None
+        self.p2 = producedTuple[1] if (len(producedTuple) > 1) else None
         self.is_terminal = (self.p2==None)
 
     def produces(self, product1, product2=None):
-        return True if (self.product1==p1 and self.product2==p2) else False
+        return True if (self.p1==product1 and self.p2==product2) else False
 
 
 class TableCell:
