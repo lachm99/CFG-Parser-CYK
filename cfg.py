@@ -1,44 +1,43 @@
 
 class CFG:
     def __init__(self, vas, tes, start, rules):
-        self.vas = vas
-        self.tes = tes
+        self.vars = vas
+        self.ters = tes
         self.start = start
-        self.rules = [Production(r[0], r[1]) for r in rules]
-        self.table = None
+        self.rules = [ProductionRule(rule[0], rule[1]) for rule in rules]
 
     def genCombinationProducers(self, cellA, cellB):
-        entries = set()
-        for varA in cellA.stack:
-            for varB in cellB.stack:
+        entries = list()
+        for varA in cellA.entries:
+            for varB in cellB.entries:
                 producers = self.findVarProducers(varA.producerVar, varB.producerVar)
                 for producer in self.findVarProducers(varA.producerVar, varB.producerVar):
-                    entries.add(CellEntry(producer, varA, varB))
+                    entries.append(CellEntry(producer, varA, varB))
         return entries
 
     def findVarProducers(self, varA, varB):
-        producers = set()
+        producers = list()
         for rule in self.rules:
             if rule.produces(varA, varB):
-                producers.add(rule.var)
+                producers.append(rule.var)
         return producers
 
     def findTerProducers(self, symbol):
-        producers = set()
+        producers = list()
         for rule in self.rules:
             if rule.produces(symbol):
-                producers.add(rule.var)
+                producers.append(rule.var)
         return producers
 
     def generateTable(self, in_string):
         l = len(in_string)
         # 2d Array, each cell is a set. Zeroth row has length entries, etc.
-        table = [[Cell() for i in range(l - j)] for j in range(l)]
+        table = [[TableCell() for i in range(l - j)] for j in range(l)]
 
         # Input terminal producers on first row
         for i in range(l):
             prod = self.findTerProducers(in_string[i])
-            [table[0][i].stack.insert(0, CellEntry(var,None,None, in_string[i])) for var in self.findTerProducers(in_string[i])]
+            [table[0][i].entries.append(CellEntry(var,None,None, in_string[i])) for var in self.findTerProducers(in_string[i])]
 
         # Work through variable producers
         for row_ind in range(1, l):
@@ -47,79 +46,58 @@ class CFG:
                 for perm in range(row_ind):
                     cellA = table[perm][col_ind]
                     cellB = table[row_ind-perm-1][col_ind+perm+1]
-                    [targetCell.stack.insert(0, cellEntry) for cellEntry in self.genCombinationProducers(cellA, cellB)]
+                    [targetCell.entries.append(cellEntry) for cellEntry in self.genCombinationProducers(cellA, cellB)]
         return table
 
     def checkMembership(self, table):
-        l = len(table)
-        return True if self.start in [table[l-1][0].stack[i].producerVar for i in range(len(table[l-1][0].stack))] else False
+        return True if (self.start in self.topCell(table).entries) else False
 
     def printRightmostDerivation(self, table):
-        l = len(table)
-        if (not self.checkMembership(table)):
-            print("No derivation")
-            return
-
-        for entry in table[l-1][0].stack:
-            if (entry.producerVar == self.start):
-                e_stack = list()
-                t_stack = list()
+        e_stack = list()
+        t_stack = list()
+        for entry in self.topCell(table).entries:
+            if (entry == self.start):
                 e_stack.append(entry)
-                print(entry.producerVar)
-                CFG.printNextGeneration(e_stack, t_stack)
-                return
-
-
-    def printNextGeneration(e_stack, t_stack):
-        if (len(e_stack)==0):
-            return
-        rightmost = e_stack.pop(-1)
-        if (rightmost.backEntryA == None or rightmost.backEntryB == None):
-            t_stack.insert(0, rightmost.backTerminal)
-        else:
-            e_stack.append(rightmost.backEntryA)
-            e_stack.append(rightmost.backEntryB)
+                break
         line = ""
-        for e in e_stack:
-            line += e.producerVar
-        for t in t_stack:
-            line += t
-        print(line)
-        CFG.printNextGeneration(e_stack, t_stack)
+        while (len(e_stack) > 0):
+            line += "".join([repr(e) for e in e_stack])
+            line += "".join(t_stack) + "\n"
+            rightmost = e_stack.pop(-1)
+            if (rightmost.backTerminal == None):
+                e_stack.append(rightmost.backEntryA)
+                e_stack.append(rightmost.backEntryB)
+            else:
+                t_stack.insert(0, rightmost.backTerminal)
+        line += "".join((t_stack))
+        print(line) if line else print("No derivation")
+
 
     def checkAmbiguity(self, table):
-        l = len(table)
-        derivations = 0
-        for entry in table[l-1][0].stack:
-            if (entry.producerVar == self.start):
-                derivations += 1
-        return derivations
+        derivations = self.topCell(table).entries.count(self.start)
+        return (derivations > 1)
+
+    def topCell(self, table):
+        return table[len(table)-1][0]
 
 
-class Production:
-    def __init__(self, var, pTuple):
-        self.var = var
-        self.p1 = pTuple[0]
-        self.p2 = pTuple[1] if (len(pTuple) > 1) else None
-        self.is_terminal = self.p2==None
+class ProductionRule:
+    def __init__(self, producerVariable, producedTuple):
+        self.var = producerVariable
+        self.p1 = producedTuple[0]
+        self.p2 = producedTuple[1] if (len(pTuple) > 1) else None
+        self.is_terminal = (self.p2==None)
 
-    def produces(self, p1, p2=None):
-        return True if self.p1==p1 and self.p2==p2 else False
+    def produces(self, product1, product2=None):
+        return True if (self.product1==p1 and self.product2==p2) else False
 
 
-class Cell:
+class TableCell:
     def __init__(self):
-        self.stack = list()
+        self.entries = list()
 
-    def __repr__(self):
-        out = ""
-        for entry in self.stack:
-            out += repr(entry) + ","
-        return out
-
-    def add(self, cellEntry):
-        self.stack.insert(0, cellEntry)
-
+    def contains(self, producerVar):
+        return (producerVar in self.entries)
 
 class CellEntry:
     def __init__(self, producerVar, backEntryA=None, backEntryB=None, backTerminal=None):
@@ -127,6 +105,13 @@ class CellEntry:
         self.backEntryA = backEntryA
         self.backEntryB = backEntryB
         self.backTerminal = backTerminal
+
+    def __repr__(self):
+        return self.producerVar
+
+    # A really shallow equality check - only checks if the producer variable is the same
+    def __eq__(self, other):
+        return (self.producerVar == other)
 
     def __repr__(self):
         return self.producerVar

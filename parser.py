@@ -27,14 +27,8 @@ class Parser:
         return lines
 
     def parse_cfg(self):
-        """Read from the stream, return a dictionary representing the CFG.
-
-        key 'variables' gives the set of variable symbols (as a list)
-        key 'terminals' gives the set of terminal symbols (as a list)
-        key 'start' gives the label of the start variable
-        key 'rules' gives a list of (V, production) tuples, where production is a list
-
-        You will want use this data to construct more suitable data structures.
+        """Read from the stream, return a CFG object.
+        This CFG object will be used to run the tasks.
         """
         lines = self.read_section()
         it = iter(lines)
@@ -50,7 +44,6 @@ class Parser:
             # separate on whitespace (excluding leading or trailing whitespace)
             production = re.sub('\s', ' ', production.strip())
             production = production.split(' ')
-            production = [re.sub('epsilon', '', production[i]) for i in range(len(production))]
             rules.append((v, production))
         return CFG(vas, tes, start, rules)
 

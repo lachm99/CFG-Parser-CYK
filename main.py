@@ -16,12 +16,11 @@ def membership(parser):
     print("end")
 
 def rightmost_derivation(parser):
-    """Give a rightmost derivation of the string."""
+    """Print a rightmost derivation of the string."""
     cfg = parser.parse_cfg()
     test_string = parser.parse_test_string()
     table = cfg.generateTable(test_string)
     cfg.printRightmostDerivation(table)
-
     print("end")
 
 def ambiguous(parser):
@@ -30,8 +29,8 @@ def ambiguous(parser):
     test_strings = parser.parse_test_strings()
     for test_string in test_strings:
         table = cfg.generateTable(test_string)
-        derivations = cfg.checkAmbiguity(table)
-        print("1") if derivations > 1 else print("0")
+        ambiguous = cfg.checkAmbiguity(table)
+        print("1") if ambiguous else print("0")
     print("end")
 
 
