@@ -1,10 +1,6 @@
-"""This module is the entry point to your assignment. There is some scaffolding
-to help you get started. It will call the appropriate method and load the input
-data. You can edit or remove as much of this code as you wish to."""
-
 from parser import Parser
 from sys import stdin
-from cfg import *
+from cfg import CFG
 
 def membership(parser):
     """For each string, decide if it is in the language."""

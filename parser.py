@@ -4,7 +4,7 @@ it, if you'd prefer to write your own parsing functions."""
 
 import re
 from sys import stdin
-from cfg import *
+from cfg import CFG
 
 class Parser:
     """Combined parser and reader, takes a stream as input, outputs cfg/commands"""
